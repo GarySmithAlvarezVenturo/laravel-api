@@ -13,31 +13,18 @@ class ProjectController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $project = Project::with('type', 'languages')->paginate(5);
-        return response()->json($project);
-    }
+        // filtro risultati
+        // gestione parametro q (parametro di ricerca)
+        $searchStr = $request->query('q', '');
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
+        $projects = Project::with('type', 'languages')->where('title', 'LIKE', "%{$searchStr}%")->paginate(3);
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
+        return response()->json([
+            'success'   => true,
+            'results'   => $projects,
+        ]);
     }
 
     /**
@@ -46,42 +33,12 @@ class ProjectController extends Controller
      * @param  \App\Models\Project  $project
      * @return \Illuminate\Http\Response
      */
-    public function show(Project $project)
+    public function show($slug)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Project  $project
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Project $project)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Project  $project
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Project $project)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Project  $project
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Project $project)
-    {
-        //
+        $project = Project::where('slug', $slug)->first();
+        return response()->json([
+            'success'   => $project ? true : false,
+            'results'   => $project,
+        ]);
     }
 }

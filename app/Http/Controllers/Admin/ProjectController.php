@@ -59,8 +59,6 @@ class ProjectController extends Controller
 
         $data = $request->all();
 
-        //prendere il percorso dell'immagine
-        $image = Storage::put('uploads', $data['image']);
         // Salvare i dati nel database
         $newProject                 = new Project();
         $newProject->title          = $data['title'];
@@ -70,7 +68,11 @@ class ProjectController extends Controller
         $newProject->last_update    = $data['last_update'];
         $newProject->collaborators  = $data['collaborators'];
         $newProject->description    = $data['description'];
-        $newProject->image          = $image;
+        //prendere il percorso dell'immagine
+        if ($request->has('image')) {
+            $image = Storage::put('uploads', $data['image']);
+            $newProject->image      = $image;
+        }
         $newProject->link_github    = $data['link_github'];
         $newProject->type_id        = $data['type_id'];
         $newProject->save();
@@ -122,8 +124,8 @@ class ProjectController extends Controller
         $data = $request->all();
 
         // Faccio un controllo per fare in modo che se non viene modificata l'immagine, la vecchia non venga eliminata
-        if ($data['image']) {
-            $image = Storage::put('uploads', $data['image']);
+        if ($request->has('image')) {
+            $image = Storage::disk('public')->put('uploads', $data['image']);
             if ($project->image) {
                 Storage::delete($project->image);
             }
